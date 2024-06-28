@@ -15,10 +15,14 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String title;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false)
     private CourseCategory category;
 
+    public Course(NewCourseDTO data) {
+        this.title = data.title();
+        this.category = data.category();
+    }
 }

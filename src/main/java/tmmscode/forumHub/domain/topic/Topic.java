@@ -35,16 +35,24 @@ public class Topic {
     @Column(name = "status", nullable = false)
     private TopicStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "author_id")
     private User author;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "course_id")
     private Course course;
 
-    @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER)
     private List<Answers> answers = new ArrayList<>();
 
-
+    @PrePersist
+    public void setDefaultValues() {
+        if (status == null) {
+            status = TopicStatus.ACTIVE;
+        }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 }

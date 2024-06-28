@@ -1,7 +1,8 @@
-package tmmscode.forumHub.domain.user;
+package tmmscode.forumHub.domain.user.profile;
 
 import jakarta.persistence.*;
 import lombok.*;
+import tmmscode.forumHub.domain.user.User;
 
 import java.util.Set;
 

@@ -17,6 +17,7 @@ public record TopicDetailsDTO(
         List<Answers> answersList
 
 ) {
+
     public TopicDetailsDTO(Topic topic) {
         this(
                 topic.getId(),
@@ -28,4 +29,5 @@ public record TopicDetailsDTO(
                 topic.getCourse(),
                 topic.getAnswers());
     }
+
 }

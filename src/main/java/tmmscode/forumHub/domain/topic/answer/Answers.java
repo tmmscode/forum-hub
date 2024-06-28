@@ -29,7 +29,7 @@ public class Answers {
     private Topic topic;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
     @Lob
