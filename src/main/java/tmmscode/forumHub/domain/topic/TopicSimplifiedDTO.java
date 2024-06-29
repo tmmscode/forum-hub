@@ -1,34 +1,25 @@
 package tmmscode.forumHub.domain.topic;
 
 import tmmscode.forumHub.domain.course.Course;
-import tmmscode.forumHub.domain.topic.answer.Answers;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-public record TopicDetailsDTO(
-        Long id,
+public record TopicSimplifiedDTO(
         String title,
         String message,
         LocalDateTime createdAt,
-        String authorName,
         TopicStatus status,
-        Course course,
-        List<Answers> answersList
-
+        String authorName,
+        Course course
 ) {
-
-    public TopicDetailsDTO(Topic topic) {
+    public TopicSimplifiedDTO(Topic topic){
         this(
-                topic.getId(),
                 topic.getTitle(),
                 topic.getMessage(),
                 topic.getCreatedAt(),
-                topic.getAuthor().getName(),
                 topic.getStatus(),
-                topic.getCourse(),
-                topic.getAnswers()
+                topic.getAuthor().getName(),
+                topic.getCourse()
         );
     }
-
 }

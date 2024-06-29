@@ -25,7 +25,7 @@ public class User {
     private String email;
     private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_profile",
             joinColumns = @JoinColumn(name = "user_id"),

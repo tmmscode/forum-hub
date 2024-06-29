@@ -46,13 +46,22 @@ public class Topic {
     @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER)
     private List<Answers> answers = new ArrayList<>();
 
-    @PrePersist
-    public void setDefaultValues() {
-        if (status == null) {
-            status = TopicStatus.ACTIVE;
+
+
+    public void close() {
+        this.status = TopicStatus.CLOSED;
+    }
+
+    public void update(UpdateTopicDTO data) {
+        if(data.title() != null){
+            this.title = data.title();
         }
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
+        if(data.message() != null){
+            this.message = data.message();
         }
+    }
+
+    public void delete() {
+        this.status = TopicStatus.DELETED;
     }
 }
