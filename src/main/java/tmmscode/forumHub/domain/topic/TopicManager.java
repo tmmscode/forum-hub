@@ -1,6 +1,5 @@
 package tmmscode.forumHub.domain.topic;
 
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +23,7 @@ public class TopicManager {
     @Autowired
     private CourseRepository courseRepository;
 
-    public List<TopicSimplifiedDTO> showAllTopics() {
+    public List<TopicSimplifiedDTO> getAllTopics() {
         var alltopics = topicRepository.findAll();
 
         return alltopics.stream()
@@ -32,20 +31,14 @@ public class TopicManager {
                 .toList();
     }
 
-    public Page<Topic> showExistingTopics(Pageable pageable) {
-        var activeTopics = topicRepository.findExistingTopics(pageable, TopicStatus.DELETED );
+    public Page<Topic> getExistingTopics(Pageable pageable) {
+        var activeTopics = topicRepository.findExistingTopics(pageable, TopicStatus.DELETED);
         return activeTopics;
     }
 
-    @Transactional
     public TopicDetailsDTO createTopic(NewTopicDTO data) {
         if(topicRepository.findTopicByTitleAndMessageInCourse(data.title(), data.message(), data.courseId()).isEmpty()){
             Topic creatingTopic = new Topic();
-
-            creatingTopic.setTitle(data.title());
-            creatingTopic.setMessage(data.message());
-            creatingTopic.setStatus(TopicStatus.ACTIVE);
-            creatingTopic.setCreatedAt(LocalDateTime.now());
 
             if(userRepository.existsById(data.authorId())){
                 User foundUser = userRepository.getReferenceById(data.authorId());
@@ -60,6 +53,11 @@ public class TopicManager {
             } else {
                 throw new RuntimeException("O Curso não existe");
             }
+
+            creatingTopic.setTitle(data.title());
+            creatingTopic.setMessage(data.message());
+            creatingTopic.setStatus(TopicStatus.ACTIVE);
+            creatingTopic.setCreatedAt(LocalDateTime.now());
 
             topicRepository.save(creatingTopic);
             return new TopicDetailsDTO(creatingTopic);
@@ -80,7 +78,7 @@ public class TopicManager {
 
 
     public TopicDetailsDTO updateTopic(UpdateTopicDTO data, Long id) {
-        if(topicRepository.existsById(id)) {
+        if(topicRepository.existsById(id) && !topicRepository.isDeleted(id, TopicStatus.DELETED)) {
             var topicSelected = topicRepository.getReferenceById(id);
             topicSelected.update(data);
             return new TopicDetailsDTO(topicSelected);
@@ -90,7 +88,7 @@ public class TopicManager {
     }
 
     public void delete(Long id) {
-        if(topicRepository.existsById(id)) {
+        if(topicRepository.existsById(id) && !topicRepository.isDeleted(id, TopicStatus.DELETED)) {
             var topicSelected = topicRepository.getReferenceById(id);
             topicSelected.delete();
         } else {

@@ -20,7 +20,7 @@ public class TopicController {
 
     @GetMapping
     public ResponseEntity<Page<TopicSimplifiedDTO>> listExistingTopics (@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable) {
-        var topicPage = topicManager.showExistingTopics(pageable).map(TopicSimplifiedDTO::new);
+        var topicPage = topicManager.getExistingTopics(pageable).map(TopicSimplifiedDTO::new);
         return ResponseEntity.ok(topicPage);
     }
 
