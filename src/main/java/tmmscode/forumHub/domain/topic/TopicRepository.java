@@ -15,7 +15,7 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     Page<Topic> findExistingTopics (Pageable pageable, TopicStatus deletedStatus);
 
     @Query("SELECT t FROM Topic t WHERE t.id = :topicId AND t.status = :deletedStatus")
-    boolean isDeleted (Long topicId, TopicStatus deletedStatus);
+    Optional<Topic> isDeleted (Long topicId, TopicStatus deletedStatus);
 
     @Query("SELECT t FROM Topic t JOIN t.course c WHERE t.status != :deletedStatus AND c.id = :courseId AND c.active = true")
     Page<Topic> findExistingTopicsFromCourse(Pageable pageable, TopicStatus deletedStatus, Long courseId);

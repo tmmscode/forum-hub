@@ -20,6 +20,10 @@ public class Profile {
 
     private String name;
 
-    @ManyToMany(mappedBy = "profile")
+    @ManyToMany(mappedBy = "profile", fetch = FetchType.LAZY)
     private Set<User> users;
+
+    public Profile(NewProfileDTO data) {
+        this.name = data.name();
+    }
 }

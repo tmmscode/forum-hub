@@ -78,7 +78,7 @@ public class TopicManager {
 
 
     public TopicDetailsDTO updateTopic(UpdateTopicDTO data, Long id) {
-        if(topicRepository.existsById(id) && !topicRepository.isDeleted(id, TopicStatus.DELETED)) {
+        if(topicRepository.existsById(id) && topicRepository.isDeleted(id, TopicStatus.DELETED).isEmpty()) {
             var topicSelected = topicRepository.getReferenceById(id);
             topicSelected.update(data);
             return new TopicDetailsDTO(topicSelected);
@@ -88,11 +88,20 @@ public class TopicManager {
     }
 
     public void delete(Long id) {
-        if(topicRepository.existsById(id) && !topicRepository.isDeleted(id, TopicStatus.DELETED)) {
+        if(topicRepository.existsById(id) && topicRepository.isDeleted(id, TopicStatus.DELETED).isEmpty()) {
             var topicSelected = topicRepository.getReferenceById(id);
             topicSelected.delete();
         } else {
             throw new RuntimeException("Tópico escolhido para exclusão não existe!");
+        }
+    }
+
+    public void close(Long id) {
+        if(topicRepository.existsById(id) && topicRepository.isDeleted(id, TopicStatus.DELETED).isEmpty()) {
+            var topicSelected = topicRepository.getReferenceById(id);
+            topicSelected.close();
+        } else {
+            throw new RuntimeException("Tópico escolhido para encerramento não existe!");
         }
     }
 }

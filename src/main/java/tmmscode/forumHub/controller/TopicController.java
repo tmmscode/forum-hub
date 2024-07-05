@@ -19,13 +19,13 @@ public class TopicController {
     private TopicManager topicManager;
 
     @GetMapping
-    public ResponseEntity<Page<TopicSimplifiedDTO>> listExistingTopics (@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable) {
+    public ResponseEntity<Page<TopicSimplifiedDTO>> getExistingTopics (@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable) {
         var topicPage = topicManager.getExistingTopics(pageable).map(TopicSimplifiedDTO::new);
         return ResponseEntity.ok(topicPage);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity detailedTopic (@PathVariable Long id) {
+    public ResponseEntity getTopicDetails (@PathVariable Long id) {
         TopicDetailsDTO detailedTopic = topicManager.getTopicDetails(id);
         return ResponseEntity.ok(detailedTopic);
     }
@@ -36,7 +36,7 @@ public class TopicController {
         TopicDetailsDTO createdTopic = topicManager.createTopic(data);
 
         var uri = uriComponentsBuilder.path("/topics/{id}").buildAndExpand(createdTopic.id()).toUri();
-        return ResponseEntity.created(uri).body(data);
+        return ResponseEntity.created(uri).body(createdTopic);
     }
 
     @PutMapping("/{id}")
@@ -44,6 +44,13 @@ public class TopicController {
     public ResponseEntity updateTopic(@RequestBody @Valid UpdateTopicDTO data, @PathVariable Long id) {
         TopicDetailsDTO topicUpdated = topicManager.updateTopic(data, id);
         return ResponseEntity.ok(topicUpdated);
+    }
+
+    @PutMapping("/{id}/close")
+    @Transactional
+    public ResponseEntity closeTopic(@PathVariable Long id) {
+        topicManager.close(id);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

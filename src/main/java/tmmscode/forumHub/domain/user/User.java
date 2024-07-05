@@ -1,10 +1,7 @@
 package tmmscode.forumHub.domain.user;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import tmmscode.forumHub.domain.user.profile.Profile;
 //import org.springframework.security.core.GrantedAuthority;
 //import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +22,8 @@ public class User {
     private String email;
     private String password;
 
+    private boolean active;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_profile",
@@ -37,7 +36,32 @@ public class User {
         this.name = data.name();
         this.email = data.email();
         this.password = data.password();
+        this.active = true;
+    }
 
+    public void update(UpdateUserDTO data) {
+        this.name = data.name();
+    }
+
+    public void addProfile(Profile profile) {
+        this.profile.add(profile);
+    }
+
+    public void removeProfile(Profile profile) {
+        this.profile.remove(profile);
+    }
+
+    public void updateCredentials(UpdateUserCredentialsDTO data) {
+        if(data.email() != null){
+            this.email = data.email();
+        }
+        if(data.password() != null){
+            this.password = data.password();
+        }
+    }
+
+    public void delete(){
+        this.active = false;
     }
 
 //    @Override

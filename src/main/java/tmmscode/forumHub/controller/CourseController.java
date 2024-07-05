@@ -33,7 +33,7 @@ public class CourseController {
         CourseDetailsDTO createdCourse = courseManager.createCourse(data);
 
         var uri = uriComponentsBuilder.path("/couses/{id}").buildAndExpand(createdCourse.id()).toUri();
-        return ResponseEntity.created(uri).body(data);
+        return ResponseEntity.created(uri).body(createdCourse);
     }
 
     @PutMapping("/{id}")
