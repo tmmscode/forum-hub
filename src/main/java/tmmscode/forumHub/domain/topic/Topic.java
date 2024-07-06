@@ -3,7 +3,7 @@ package tmmscode.forumHub.domain.topic;
 import jakarta.persistence.*;
 import lombok.*;
 import tmmscode.forumHub.domain.course.Course;
-import tmmscode.forumHub.domain.topic.answer.Answers;
+import tmmscode.forumHub.domain.topic.answer.Answer;
 import tmmscode.forumHub.domain.user.User;
 
 import java.time.LocalDateTime;
@@ -44,7 +44,7 @@ public class Topic {
     private Course course;
 
     @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER)
-    private List<Answers> answers = new ArrayList<>();
+    private List<Answer> answers = new ArrayList<>();
 
 
 

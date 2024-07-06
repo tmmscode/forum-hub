@@ -1,10 +1,7 @@
 package tmmscode.forumHub.domain.topic.answer;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import tmmscode.forumHub.domain.topic.Topic;
 import tmmscode.forumHub.domain.user.User;
 
@@ -13,10 +10,11 @@ import java.time.LocalDateTime;
 @Entity(name = "Answer")
 @Table(name = "answers")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class Answers {
+public class Answer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

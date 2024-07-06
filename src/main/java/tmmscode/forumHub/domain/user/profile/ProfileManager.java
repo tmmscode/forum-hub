@@ -26,4 +26,23 @@ public class ProfileManager {
         profileRepository.save(creatingProfile);
         return new ProfileDetails(creatingProfile);
     }
+
+    public ProfileDetails updateProfile(UpdateProfileDTO data, Long id) {
+        if(!profileRepository.existsById(id)){
+            throw new RuntimeException("Esse perfil de usuário não existe");
+        }
+
+        Profile updatingProfile = profileRepository.getReferenceById(id);
+        updatingProfile.update(data);
+        return new ProfileDetails(updatingProfile);
+    }
+
+    public void deleteProfile(Long id) {
+        if(!profileRepository.existsById(id)){
+            throw new RuntimeException("Esse perfil de usuário não existe");
+        }
+
+        Profile deletingProfile = profileRepository.getReferenceById(id);
+        profileRepository.delete(deletingProfile);
+    }
 }

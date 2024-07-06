@@ -58,7 +58,7 @@ public class CourseManager {
 
     // pegar tópicos de um curso (topic repository
     public Page<Topic> getExistingTopicsFromCourse(Pageable pageable, Long courseId) {
-        var activeTopicsFromCourse = topicRepository.findExistingTopicsFromCourse(pageable, TopicStatus.DELETED, courseId);
+        var activeTopicsFromCourse = topicRepository.findExistingTopicsFromCourse(pageable, courseId);
         return activeTopicsFromCourse;
     }
 

@@ -26,4 +26,8 @@ public class Profile {
     public Profile(NewProfileDTO data) {
         this.name = data.name();
     }
+
+    public void update(UpdateProfileDTO data) {
+        this.name = data.name();
+    }
 }

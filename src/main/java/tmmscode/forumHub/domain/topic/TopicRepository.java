@@ -11,12 +11,15 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     @Query("SELECT t FROM Topic t JOIN t.course c WHERE t.title ILIKE :title AND t.message ILIKE :message AND c.id = :courseId")
     Optional<Topic> findTopicByTitleAndMessageInCourse(String title, String message, Long courseId);
 
-    @Query("SELECT t FROM Topic t WHERE t.status != :deletedStatus")
-    Page<Topic> findExistingTopics (Pageable pageable, TopicStatus deletedStatus);
+    @Query(value = "SELECT t FROM Topic t WHERE t.status != DELETED")
+    Page<Topic> findExistingTopics (Pageable pageable);
 
-    @Query("SELECT t FROM Topic t WHERE t.id = :topicId AND t.status = :deletedStatus")
-    Optional<Topic> isDeleted (Long topicId, TopicStatus deletedStatus);
+    @Query("SELECT t FROM Topic t WHERE t.id = :topicId AND t.status = DELETED")
+    Optional<Topic> isDeleted (Long topicId);
 
-    @Query("SELECT t FROM Topic t JOIN t.course c WHERE t.status != :deletedStatus AND c.id = :courseId AND c.active = true")
-    Page<Topic> findExistingTopicsFromCourse(Pageable pageable, TopicStatus deletedStatus, Long courseId);
+    @Query("SELECT t FROM Topic t WHERE t.id = :topicId AND t.status = CLOSED")
+    Optional<Topic> isClosed (Long topicId);
+
+    @Query("SELECT t FROM Topic t JOIN t.course c WHERE t.status != DELETED AND c.id = :courseId AND c.active = true")
+    Page<Topic> findExistingTopicsFromCourse(Pageable pageable, Long courseId);
 }
