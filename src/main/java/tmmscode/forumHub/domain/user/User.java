@@ -2,19 +2,24 @@ package tmmscode.forumHub.domain.user;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import tmmscode.forumHub.domain.user.profile.Profile;
-//import org.springframework.security.core.GrantedAuthority;
-//import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity(name = "User")
 @Table(name = "users")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,7 +35,7 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "profile_id")
     )
-    private Set<Profile> profile;
+    private Set<Profile> profile = new HashSet<>();
 
     public User(NewUserDTO data) {
         this.name = data.name();
@@ -64,18 +69,25 @@ public class User {
         this.active = false;
     }
 
-//    @Override
-//    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return List.of();
-//    }
-//
-//    @Override
-//    public String getUsername() {
-//        return email;
-//    }
-//
-//    @Override
-//    public String getPassword() {
-//        return password;
-//    }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return profile.stream()
+                .map(profile -> new SimpleGrantedAuthority(profile.getName()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.active;
+    }
 }

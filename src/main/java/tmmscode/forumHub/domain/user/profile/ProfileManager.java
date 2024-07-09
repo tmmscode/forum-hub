@@ -2,6 +2,7 @@ package tmmscode.forumHub.domain.user.profile;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tmmscode.forumHub.domain.BusinessRulesException;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class ProfileManager {
 
     public ProfileDetails createProfile(NewProfileDTO data){
         if(profileRepository.findProfileByName(data.name()).isPresent()){
-            throw new RuntimeException("Já existe um perfil com esse nome");
+            throw new BusinessRulesException("Já existe um perfil com esse nome");
         }
 
         Profile creatingProfile = new Profile(data);
@@ -29,7 +30,7 @@ public class ProfileManager {
 
     public ProfileDetails updateProfile(UpdateProfileDTO data, Long id) {
         if(!profileRepository.existsById(id)){
-            throw new RuntimeException("Esse perfil de usuário não existe");
+            throw new BusinessRulesException("Esse perfil de usuário não existe");
         }
 
         Profile updatingProfile = profileRepository.getReferenceById(id);
@@ -39,7 +40,7 @@ public class ProfileManager {
 
     public void deleteProfile(Long id) {
         if(!profileRepository.existsById(id)){
-            throw new RuntimeException("Esse perfil de usuário não existe");
+            throw new BusinessRulesException("Esse perfil de usuário não existe");
         }
 
         Profile deletingProfile = profileRepository.getReferenceById(id);

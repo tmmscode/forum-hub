@@ -5,6 +5,8 @@ import tmmscode.forumHub.domain.user.profile.UserProfileAction;
 
 public record UpdateUserProfileDTO(
         @NotNull
+        Long userId,
+        @NotNull
         Long profileId,
         @NotNull
         UserProfileAction action

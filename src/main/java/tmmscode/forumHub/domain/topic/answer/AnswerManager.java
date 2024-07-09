@@ -2,6 +2,7 @@ package tmmscode.forumHub.domain.topic.answer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tmmscode.forumHub.domain.BusinessRulesException;
 import tmmscode.forumHub.domain.topic.TopicRepository;
 import tmmscode.forumHub.domain.topic.TopicStatus;
 import tmmscode.forumHub.domain.user.UserRepository;
@@ -22,13 +23,13 @@ public class AnswerManager {
 
     public AnswerDetailsDTO createAnswer(NewAnswerDTO data, Long topicId) {
         if(!topicRepository.existsById(topicId)) {
-            throw new RuntimeException("O tópico que você está tentando responder não existe");
+            throw new BusinessRulesException("O tópico que você está tentando responder não existe");
         }
         if(topicRepository.isDeleted(topicId).isPresent()){
-            throw new RuntimeException("O tópico que você está tentando responder, foi apagado");
+            throw new BusinessRulesException("O tópico que você está tentando responder, foi apagado");
         }
         if(topicRepository.getReferenceById(topicId).getStatus().equals(TopicStatus.CLOSED)){
-            throw new RuntimeException("O tópico que você está tentando responder, foi fechado");
+            throw new BusinessRulesException("O tópico que você está tentando responder, foi fechado");
         }
 
         Answer creatingAnswer = new Answer();
@@ -49,7 +50,7 @@ public class AnswerManager {
 
     public AnswerDetailsDTO getAnswerDetails(Long id) {
         if(!answerRepository.existsById(id)){
-            throw new RuntimeException("Essa resposta não existe!");
+            throw new BusinessRulesException("Essa resposta não existe!");
         }
         return new AnswerDetailsDTO(answerRepository.getReferenceById(id));
     }

@@ -22,3 +22,6 @@ CREATE TABLE user_profile (
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (profile_id) REFERENCES profiles(id)
 );
+
+INSERT INTO profiles(name) VALUES ('ADMIN');
+INSERT INTO profiles(name) VALUES ('USER');

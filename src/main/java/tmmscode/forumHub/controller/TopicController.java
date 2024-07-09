@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import tmmscode.forumHub.domain.topic.*;
@@ -38,6 +39,7 @@ public class TopicController {
 
     @PostMapping
     @Transactional
+    @Secured({"ADMIN", "USER"})
     public ResponseEntity createTopic (@RequestBody @Valid NewTopicDTO data, UriComponentsBuilder uriComponentsBuilder) {
         TopicDetailsDTO createdTopic = topicManager.createTopic(data);
 
@@ -47,6 +49,7 @@ public class TopicController {
 
     @PostMapping("/{topicId}")
     @Transactional
+    @Secured({"ADMIN", "USER"})
     public ResponseEntity sendAnswer (@RequestBody @Valid NewAnswerDTO data, @PathVariable Long topicId, UriComponentsBuilder uriComponentsBuilder){
         // pegar id do usuário pelo token e enviar para a função para atribuir o autor
         AnswerDetailsDTO createdAnswer = answerManager.createAnswer(data, topicId);
@@ -64,6 +67,7 @@ public class TopicController {
 
     @PutMapping("/{id}")
     @Transactional
+    @Secured({"ADMIN", "USER"})
     public ResponseEntity updateTopic(@RequestBody @Valid UpdateTopicDTO data, @PathVariable Long id) {
         TopicDetailsDTO topicUpdated = topicManager.updateTopic(data, id);
         return ResponseEntity.ok(topicUpdated);
@@ -71,6 +75,7 @@ public class TopicController {
 
     @PutMapping("/{id}/close")
     @Transactional
+    @Secured({"ADMIN", "USER"})
     public ResponseEntity closeTopic(@PathVariable Long id) {
         topicManager.close(id);
         return ResponseEntity.noContent().build();
@@ -78,6 +83,7 @@ public class TopicController {
 
     @DeleteMapping("/{id}")
     @Transactional
+    @Secured({"ADMIN", "USER"})
     public ResponseEntity deleteTopic(@PathVariable Long id) {
         topicManager.delete(id);
         return ResponseEntity.noContent().build();

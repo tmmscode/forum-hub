@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import tmmscode.forumHub.domain.user.profile.NewProfileDTO;
@@ -13,6 +14,7 @@ import tmmscode.forumHub.domain.user.profile.UpdateProfileDTO;
 
 @RestController
 @RequestMapping("profiles")
+@Secured("ADMIN")
 public class ProfileController {
     @Autowired
     private ProfileManager profileManager;

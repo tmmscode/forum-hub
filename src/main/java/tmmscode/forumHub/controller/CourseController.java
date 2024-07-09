@@ -8,15 +8,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import tmmscode.forumHub.domain.course.*;
-import tmmscode.forumHub.domain.topic.TopicDetailsDTO;
+import tmmscode.forumHub.domain.course.CourseDetailsDTO;
+import tmmscode.forumHub.domain.course.CourseManager;
+import tmmscode.forumHub.domain.course.NewCourseDTO;
+import tmmscode.forumHub.domain.course.UpdateCourseDTO;
 import tmmscode.forumHub.domain.topic.TopicSimplifiedDTO;
-import tmmscode.forumHub.domain.topic.UpdateTopicDTO;
 
 @RestController
 @RequestMapping("courses")
+@Secured("ADMIN")
 public class CourseController {
     @Autowired
     private CourseManager courseManager;

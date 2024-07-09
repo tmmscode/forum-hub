@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import tmmscode.forumHub.domain.BusinessRulesException;
 import tmmscode.forumHub.domain.topic.Topic;
 import tmmscode.forumHub.domain.topic.TopicRepository;
-import tmmscode.forumHub.domain.topic.TopicStatus;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class CourseManager {
             var courseSelected = courseRepository.getReferenceById(id);
             return new CourseDetailsDTO(courseSelected);
         } else {
-            throw new RuntimeException("O curso escolhido para detalhamento não existe!");
+            throw new BusinessRulesException("O curso escolhido para detalhamento não existe!");
         }
     }
 
@@ -43,7 +43,7 @@ public class CourseManager {
             courseSelected.update(data);
             return new CourseDetailsDTO(courseSelected);
         } else {
-            throw new RuntimeException("O curso escolhido para atualização não existe!");
+            throw new BusinessRulesException("O curso escolhido para atualização não existe!");
         }
     }
 
@@ -52,7 +52,7 @@ public class CourseManager {
             var courseSelected = courseRepository.getReferenceById(id);
             courseSelected.delete();
         } else {
-            throw new RuntimeException("O curso escolhido para exclusão não existe!");
+            throw new BusinessRulesException("O curso escolhido para exclusão não existe!");
         }
     }
 
