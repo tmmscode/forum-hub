@@ -3,6 +3,8 @@ package tmmscode.forumHub.domain.user.profile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tmmscode.forumHub.domain.BusinessRulesException;
+import tmmscode.forumHub.domain.user.profile.validations.creation.ValidateProfileCreation;
+import tmmscode.forumHub.domain.user.profile.validations.update.ValidateProfileUpdate;
 
 import java.util.List;
 
@@ -11,6 +13,12 @@ public class ProfileManager {
     @Autowired
     private ProfileRepository profileRepository;
 
+    @Autowired
+    private List<ValidateProfileCreation> validateProfileCreation;
+
+    @Autowired
+    private List<ValidateProfileUpdate> validateProfileUpdate;
+
     public List<ProfileDetails> getAllProfiles(){
         List<Profile> profilesList = profileRepository.findAll();
         return profilesList.stream()
@@ -18,10 +26,12 @@ public class ProfileManager {
                 .toList();
     }
 
+    public ProfileDetails getProfile(Long id) {
+        return new ProfileDetails(profileRepository.findById(id).get());
+    }
+
     public ProfileDetails createProfile(NewProfileDTO data){
-        if(profileRepository.findProfileByName(data.name()).isPresent()){
-            throw new BusinessRulesException("Já existe um perfil com esse nome");
-        }
+        validateProfileCreation.forEach(v -> v.validate(data));
 
         Profile creatingProfile = new Profile(data);
         profileRepository.save(creatingProfile);
@@ -29,9 +39,7 @@ public class ProfileManager {
     }
 
     public ProfileDetails updateProfile(UpdateProfileDTO data, Long id) {
-        if(!profileRepository.existsById(id)){
-            throw new BusinessRulesException("Esse perfil de usuário não existe");
-        }
+        validateProfileUpdate.forEach(v -> v.validate(id));
 
         Profile updatingProfile = profileRepository.getReferenceById(id);
         updatingProfile.update(data);
@@ -39,11 +47,10 @@ public class ProfileManager {
     }
 
     public void deleteProfile(Long id) {
-        if(!profileRepository.existsById(id)){
-            throw new BusinessRulesException("Esse perfil de usuário não existe");
-        }
+        validateProfileUpdate.forEach(v -> v.validate(id));
 
         Profile deletingProfile = profileRepository.getReferenceById(id);
         profileRepository.delete(deletingProfile);
     }
+
 }

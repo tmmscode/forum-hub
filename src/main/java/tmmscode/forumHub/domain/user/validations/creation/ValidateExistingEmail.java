@@ -14,7 +14,7 @@ public class ValidateExistingEmail implements ValidateUserCreation {
     @Override
     public void validate(NewUserDTO data) {
         if(userRepository.findUserByEmail(data.email()).isPresent()){
-            throw new BusinessRulesException("O email informado já está em uso");
+            throw new BusinessRulesException("The email is already in use");
         }
     }
 }

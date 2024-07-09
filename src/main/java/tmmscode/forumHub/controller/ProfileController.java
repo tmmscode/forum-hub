@@ -24,6 +24,11 @@ public class ProfileController {
         return ResponseEntity.ok(profileManager.getAllProfiles());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity getProfile(@PathVariable Long id) {
+        return ResponseEntity.ok(profileManager.getProfile(id));
+    }
+
     @PostMapping
     @Transactional
     public ResponseEntity createProfile(@RequestBody @Valid NewProfileDTO data, UriComponentsBuilder uriComponentsBuilder){
