@@ -3,12 +3,15 @@ package tmmscode.forumHub.domain.user;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tmmscode.forumHub.domain.BusinessRulesException;
 import tmmscode.forumHub.domain.user.profile.Profile;
 import tmmscode.forumHub.domain.user.profile.ProfileRepository;
 import tmmscode.forumHub.domain.user.profile.UserProfileAction;
+import tmmscode.forumHub.domain.user.validations.creation.ValidateUserCreation;
+import tmmscode.forumHub.domain.user.validations.update.ValidateUserUpdate;
 import tmmscode.forumHub.infra.security.JWTTokenDTO;
 import tmmscode.forumHub.infra.security.TokenService;
 
@@ -31,27 +34,21 @@ public class UserManager {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private List<ValidateUserCreation> validateUserCreation;
 
-    public List<UserSimplifiedDTO> getAllUsers() {
-        List<User> userList = userRepository.findAll();
-        return userList.stream()
-                .map(UserSimplifiedDTO::new)
-                .toList();
-    }
+    @Autowired
+    private List<ValidateUserUpdate> validateUserUpdate;
 
-    public List<UserSimplifiedDTO> getAllActiveUsers() {
-        List<User> userList = userRepository.findExistingUsers();
-        return userList.stream()
-                .map(UserSimplifiedDTO::new)
-                .toList();
-    }
+    public UserDetailsDTO createUser(NewUserDTO data) {
+        validateUserCreation.forEach(v -> v.validate(data));
 
-    public UserDetailsDTO getUserDetails(Long id) {
-        if(!userRepository.existsById(id)){
-            throw new BusinessRulesException("O usuário não existe!");
-        }
-        var selectedUser = userRepository.getReferenceById(id);
-        return new UserDetailsDTO(selectedUser);
+        User creatingUser = new User(data);
+        Profile userProfile = profileRepository.findProfileByName("USER").get();
+        creatingUser.addProfile(userProfile);
+        creatingUser.setPassword(passwordEncoder.encode(data.password()));
+        userRepository.save(creatingUser);
+        return new UserDetailsDTO(creatingUser);
     }
 
     public JWTTokenDTO login(UserLoginDTO data) {
@@ -62,35 +59,28 @@ public class UserManager {
         return new JWTTokenDTO(jwtToken);
     }
 
-    public UserDetailsDTO createUser(NewUserDTO data) {
-        if(userRepository.findUserByEmail(data.email()).isPresent()){
-            throw new BusinessRulesException("O email informado já está em uso");
-        }
-
-        User creatingUser = new User(data);
-        Profile userProfile = profileRepository.findProfileByName("USER").get();
-        creatingUser.addProfile(userProfile);
-        creatingUser.setPassword(passwordEncoder.encode(data.password()));
-        userRepository.save(creatingUser);
-        return new UserDetailsDTO(creatingUser);
+    public List<UserSimplifiedDTO> getAllActiveUsers() {
+        List<User> userList = userRepository.findExistingUsers();
+        return userList.stream()
+                .map(UserSimplifiedDTO::new)
+                .toList();
     }
 
-    public UserDetailsDTO updateUser(UpdateUserDTO data, Long id) {
-        // verificar se o usuarío que fez a requisição é o mesmo do id a ser modificado
-        // se não for o mesmo usuário, verificar se o usuário possui permissão para realizar a mudança
-        // Verify admin
-        verifyActiveUser(id);
-        // esse verify fica incluso no admin ?
+    public List<UserSimplifiedDTO> getAllUsers() {
+        List<User> userList = userRepository.findAll();
+        return userList.stream()
+                .map(UserSimplifiedDTO::new)
+                .toList();
+    }
 
-        User selectedUser = userRepository.getReferenceById(id);
-        selectedUser.update(data);
+    public UserDetailsDTO getUserDetails(Long id) {
+        var selectedUser = userRepository.getReferenceById(id);
         return new UserDetailsDTO(selectedUser);
     }
 
-    public UserDetailsDTO updateUserProfile(UpdateUserProfileDTO data) {
-        verifyActiveUser(data.userId());
+    public UserDetailsDTO updateUserProfile(UpdateUserProfileDTO data, UserDetails user) {
+        validateUserUpdate.forEach(v -> v.validate(data.userId()));
 
-        // verificar se o usuário possui permissão para fazer essa mudança
         if (!profileRepository.existsById(data.profileId())){
             throw new BusinessRulesException("O perfil de usuário não existe");
         }
@@ -109,12 +99,19 @@ public class UserManager {
         return new UserDetailsDTO(selectedUser);
     }
 
-    public UserDetailsDTO updateUserCredentials(UpdateUserCredentialsDTO data, Long id) {
-        // verificar se o usuarío que fez a requisição é o mesmo do id a ser modificado
-        verifyActiveUser(id);
+    public UserDetailsDTO updateUser(UpdateUserDTO data, UserDetails user) {
+        User requester = (User) user;
 
+        User selectedUser = userRepository.getReferenceById(requester.getId());
+        selectedUser.update(data);
 
-        User selectedUser = userRepository.findById(id).get();
+        return new UserDetailsDTO(selectedUser);
+    }
+
+    public UserDetailsDTO updateUserCredentials(UpdateUserCredentialsDTO data, UserDetails user) {
+        User requester = (User) user;
+        User selectedUser = userRepository.findById(requester.getId()).get();
+
         String updatedEmail = null;
         String updatedPassword = null;
 
@@ -132,18 +129,14 @@ public class UserManager {
         return new UserDetailsDTO(selectedUser);
     }
 
-    public void deleteUser(Long id){
-        verifyActiveUser(id);
-        User selectedUser = userRepository.getReferenceById(id);
-        selectedUser.delete();
-    }
+    public void deleteUser(DeactivateUserConfirmationDTO confirmation, UserDetails user){
+        User requester = (User) user;
+        User selectedUser = userRepository.findById(requester.getId()).get();
 
-
-    public void verifyActiveUser(Long id) {
-        if(!userRepository.existsById(id)) {
-            throw new BusinessRulesException("O usuário não existe");
-        } else if(userRepository.isDeleted(id).isPresent()) {
-            throw new BusinessRulesException("O usuário foi desativado");
+        if(passwordEncoder.matches(confirmation.password(), selectedUser.getPassword())){
+            selectedUser.delete();
+        } else {
+            throw new BusinessRulesException("Wrong password");
         }
     }
 }

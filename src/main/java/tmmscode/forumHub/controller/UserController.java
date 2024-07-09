@@ -55,7 +55,7 @@ public class UserController {
     }
 
     // You can set new administrators in this route, be careful!
-    @PutMapping("/profile/{id}")
+    @PutMapping("/profile")
     @Transactional
     @Secured("ADMIN")
     public ResponseEntity updateUserProfile (@RequestBody @Valid UpdateUserProfileDTO data, @AuthenticationPrincipal UserDetails user){
@@ -64,27 +64,27 @@ public class UserController {
     }
 
     // Basic users routes
-    @PutMapping("/{id}")
+    @PutMapping
     @Transactional
     @Secured({"ADMIN", "USER"})
-    public ResponseEntity updateUser (@RequestBody @Valid UpdateUserDTO data, @PathVariable Long id){
-        UserDetailsDTO updatedUser = userManager.updateUser(data, id);
+    public ResponseEntity updateUser (@RequestBody @Valid UpdateUserDTO data, @AuthenticationPrincipal UserDetails user){
+        UserDetailsDTO updatedUser = userManager.updateUser(data, user);
         return ResponseEntity.ok(updatedUser);
     }
 
-    @PutMapping("/credentials/{id}")
+    @PutMapping("/credentials")
     @Transactional
     @Secured({"ADMIN", "USER"})
-    public ResponseEntity updateUserCredentials (@RequestBody @Valid UpdateUserCredentialsDTO data, @PathVariable Long id){
-        UserDetailsDTO updatedUser = userManager.updateUserCredentials(data, id);
+    public ResponseEntity updateUserCredentials (@RequestBody @Valid UpdateUserCredentialsDTO data, @AuthenticationPrincipal UserDetails user){
+        UserDetailsDTO updatedUser = userManager.updateUserCredentials(data, user);
         return ResponseEntity.ok(updatedUser);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deactivate")
     @Transactional
     @Secured({"ADMIN", "USER"})
-    public ResponseEntity deleteUser(@PathVariable Long id) {
-        userManager.deleteUser(id);
+    public ResponseEntity deleteUser(@RequestBody @Valid DeactivateUserConfirmationDTO confirmationPassword, @AuthenticationPrincipal UserDetails user) {
+        userManager.deleteUser(confirmationPassword, user);
         return ResponseEntity.noContent().build();
     }
 

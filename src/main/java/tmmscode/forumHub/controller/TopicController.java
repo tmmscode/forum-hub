@@ -9,6 +9,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import tmmscode.forumHub.domain.topic.*;
@@ -40,8 +42,8 @@ public class TopicController {
     @PostMapping
     @Transactional
     @Secured({"ADMIN", "USER"})
-    public ResponseEntity createTopic (@RequestBody @Valid NewTopicDTO data, UriComponentsBuilder uriComponentsBuilder) {
-        TopicDetailsDTO createdTopic = topicManager.createTopic(data);
+    public ResponseEntity createTopic (@RequestBody @Valid NewTopicDTO data, UriComponentsBuilder uriComponentsBuilder, @AuthenticationPrincipal UserDetails user) {
+        TopicDetailsDTO createdTopic = topicManager.createTopic(data, user);
 
         var uri = uriComponentsBuilder.path("/topics/{id}").buildAndExpand(createdTopic.id()).toUri();
         return ResponseEntity.created(uri).body(createdTopic);

@@ -3,11 +3,14 @@ package tmmscode.forumHub.domain.topic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import tmmscode.forumHub.domain.BusinessRulesException;
 import tmmscode.forumHub.domain.course.Course;
 import tmmscode.forumHub.domain.course.CourseRepository;
+import tmmscode.forumHub.domain.topic.validations.creation.ValidateTopicCreation;
 import tmmscode.forumHub.domain.user.User;
+import tmmscode.forumHub.domain.user.UserDetailsDTO;
 import tmmscode.forumHub.domain.user.UserRepository;
 
 import java.time.LocalDateTime;
@@ -24,6 +27,11 @@ public class TopicManager {
     @Autowired
     private CourseRepository courseRepository;
 
+    @Autowired
+    private List<ValidateTopicCreation> validateTopicCreation;
+
+
+
     public List<TopicSimplifiedDTO> getAllTopics() {
         var alltopics = topicRepository.findAll();
 
@@ -37,28 +45,20 @@ public class TopicManager {
         return activeTopics;
     }
 
-    public TopicDetailsDTO createTopic(NewTopicDTO data) {
-        // criar validador para tópicos iguais
-        if(topicRepository.findTopicByTitleAndMessageInCourse(data.title(), data.message(), data.courseId()).isPresent()) {
-            throw new BusinessRulesException("O Tópico já existe!");
-        }
-        if(!userRepository.existsById(data.authorId())){
-            throw new BusinessRulesException("O Usuário não existe!");
-        }
-        if(!courseRepository.existsById(data.courseId())){
-            throw new BusinessRulesException("O Curso não existe");
-        }
-        // ==============================
+    public TopicDetailsDTO createTopic(NewTopicDTO data, UserDetails user) {
+        validateTopicCreation.forEach(v -> v.validate(data));
 
         Topic creatingTopic = new Topic();
 
-        User foundUser = userRepository.findById(data.authorId()).get();
-        creatingTopic.setAuthor(foundUser);
+        User creator = (User) user;
+        creatingTopic.setAuthor(creator);
+
         Course foundCourse = courseRepository.findById(data.courseId()).get();
         creatingTopic.setCourse(foundCourse);
 
         creatingTopic.setTitle(data.title());
         creatingTopic.setMessage(data.message());
+
         creatingTopic.setStatus(TopicStatus.ACTIVE);
         creatingTopic.setCreatedAt(LocalDateTime.now());
 
@@ -68,12 +68,11 @@ public class TopicManager {
 
 
     public TopicDetailsDTO getTopicDetails(Long id) {
-        if(topicRepository.existsById(id)) {
-            var topicSelected = topicRepository.getReferenceById(id);
-            return new TopicDetailsDTO(topicSelected);
-        } else {
+        if(!topicRepository.existsById(id)) {
             throw new BusinessRulesException("O Tópico escolhido para detalhamento não existe!");
         }
+        var topicSelected = topicRepository.getReferenceById(id);
+        return new TopicDetailsDTO(topicSelected);
     }
 
 

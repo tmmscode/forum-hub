@@ -9,8 +9,6 @@ public record NewTopicDTO (
         @NotBlank
         String message,
         @NotNull
-        Long authorId,
-        @NotNull
         Long courseId
 ) {
 }
