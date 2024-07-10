@@ -45,7 +45,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity handleAuthentication() {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Fail to authenticate");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Failed to authenticate");
     }
 
     @ExceptionHandler(AccessDeniedException.class)

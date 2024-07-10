@@ -33,7 +33,6 @@ public class TokenService {
             return JWT.create()
                     .withIssuer(jwtIssuer)
                     .withSubject(user.getEmail())
-                    .withClaim("id", user.getId())
                     .withExpiresAt(expireDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception){
@@ -70,14 +69,6 @@ public class TokenService {
 
     public String getSubjectFromToken(String jwtToken) {
         return getDecodedJWT(jwtToken).getSubject();
-    }
-
-        // TROCAR PARA REQUEST HEADER
-    public Long getUserIDfromRequest(HttpServletRequest request) {
-        var jwtToken = getJwtTokenFromRequest(request);
-        var decodedJWT = getDecodedJWT(jwtToken);
-
-        return decodedJWT.getClaim("id").asLong();
     }
 
 }
