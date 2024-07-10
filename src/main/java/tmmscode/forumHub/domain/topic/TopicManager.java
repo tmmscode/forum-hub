@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 import tmmscode.forumHub.domain.BusinessRulesException;
 import tmmscode.forumHub.domain.course.Course;
 import tmmscode.forumHub.domain.course.CourseRepository;
+import tmmscode.forumHub.domain.topic.validations.author.ValidateAuthor;
 import tmmscode.forumHub.domain.topic.validations.creation.ValidateTopicCreation;
 import tmmscode.forumHub.domain.topic.validations.update.ValidateExistingTopic;
 import tmmscode.forumHub.domain.topic.validations.update.ValidateUpdateTopic;
 import tmmscode.forumHub.domain.user.User;
-import tmmscode.forumHub.domain.user.UserDetailsDTO;
 import tmmscode.forumHub.domain.user.UserRepository;
 
 import java.time.LocalDateTime;
@@ -34,6 +34,12 @@ public class TopicManager {
 
     @Autowired
     private List<ValidateUpdateTopic> validateUpdateTopic;
+
+    @Autowired
+    private ValidateExistingTopic validateExistingTopic;
+
+    @Autowired
+    private ValidateAuthor<Topic> validateTopicAuthor;
 
     public Page<Topic> getExistingTopics(Pageable pageable) {
         var activeTopics = topicRepository.findExistingTopics(pageable);
@@ -69,41 +75,33 @@ public class TopicManager {
 
 
     public TopicDetailsDTO updateTopic(UpdateTopicDTO data, Long id, UserDetails user) {
-//        topicIsActive(id);
         validateUpdateTopic.forEach(v -> v.validate(id));
         User requester = (User) user;
 
-        var topicSelected = topicRepository.getReferenceById(id);
+        var topicSelected = topicRepository.findById(id).get();
+        validateTopicAuthor.validate(topicSelected, requester);
+
         topicSelected.update(data);
         return new TopicDetailsDTO(topicSelected);
     }
 
     public void delete(Long id, UserDetails user) {
+        validateExistingTopic.validate(id);
+        User requester = (User) user;
 
-        var topicSelected = topicRepository.getReferenceById(id);
+        var topicSelected = topicRepository.findById(id).get();
+        validateTopicAuthor.validate(topicSelected, requester);
+
         topicSelected.delete();
     }
 
-    public void close(Long id) {
-        topicIsActive(id);
+    public void close(Long id, UserDetails user) {
+        validateUpdateTopic.forEach(v -> v.validate(id));
+        User requester = (User) user;
 
         var topicSelected = topicRepository.getReferenceById(id);
-        topicSelected.close();
-    }
+        validateTopicAuthor.validate(topicSelected, requester);
 
-    // faz parte das validações
-    private void topicExist(Long id){
-        if(!topicRepository.existsById(id)){
-            throw new BusinessRulesException("O Tópico escolhido para atualização não existe!");
-        }
-        if(topicRepository.isDeleted(id).isPresent()){
-            throw new BusinessRulesException("O Tópico escolhido para atualização foi excluido!");
-        }
-    }
-    private void topicIsActive(Long id){
-        topicExist(id);
-        if(topicRepository.isClosed(id).isPresent()){
-            throw new BusinessRulesException("O tópico escolhido para atualização está fechado!");
-        }
+        topicSelected.close();
     }
 }
