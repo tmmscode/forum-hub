@@ -6,8 +6,8 @@ import tmmscode.forumHub.domain.BusinessRulesException;
 import tmmscode.forumHub.domain.topic.NewTopicDTO;
 import tmmscode.forumHub.domain.topic.TopicRepository;
 
-@Component("ValidateExistingTopic")
-public class ValidateExistingTopic implements ValidateTopicCreation{
+@Component("ValidateDuplicateTopic")
+public class ValidateDuplicateTopic implements ValidateTopicCreation{
     @Autowired
     private TopicRepository topicRepository;
 

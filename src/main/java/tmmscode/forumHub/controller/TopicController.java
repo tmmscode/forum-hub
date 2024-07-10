@@ -49,10 +49,34 @@ public class TopicController {
         return ResponseEntity.created(uri).body(createdTopic);
     }
 
+    @PutMapping("/{id}")
+    @Transactional
+    @Secured({"ADMIN", "USER"})
+    public ResponseEntity updateTopic(@RequestBody @Valid UpdateTopicDTO data, @PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
+        TopicDetailsDTO topicUpdated = topicManager.updateTopic(data, id, user);
+        return ResponseEntity.ok(topicUpdated);
+    }
+
+    @PutMapping("/{id}/close")
+    @Transactional
+    @Secured({"ADMIN", "USER"})
+    public ResponseEntity closeTopic(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
+        topicManager.close(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    @Secured({"ADMIN", "USER"})
+    public ResponseEntity deleteTopic(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
+        topicManager.delete(id, user);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{topicId}")
     @Transactional
     @Secured({"ADMIN", "USER"})
-    public ResponseEntity sendAnswer (@RequestBody @Valid NewAnswerDTO data, @PathVariable Long topicId, UriComponentsBuilder uriComponentsBuilder){
+    public ResponseEntity sendAnswer (@RequestBody @Valid NewAnswerDTO data, @PathVariable Long topicId, UriComponentsBuilder uriComponentsBuilder, @AuthenticationPrincipal UserDetails user){
         // pegar id do usuário pelo token e enviar para a função para atribuir o autor
         AnswerDetailsDTO createdAnswer = answerManager.createAnswer(data, topicId);
 
@@ -65,29 +89,5 @@ public class TopicController {
     public ResponseEntity answerDetails (@PathVariable Long id) {
         AnswerDetailsDTO detailedAnswer = answerManager.getAnswerDetails(id);
         return ResponseEntity.ok(detailedAnswer);
-    }
-
-    @PutMapping("/{id}")
-    @Transactional
-    @Secured({"ADMIN", "USER"})
-    public ResponseEntity updateTopic(@RequestBody @Valid UpdateTopicDTO data, @PathVariable Long id) {
-        TopicDetailsDTO topicUpdated = topicManager.updateTopic(data, id);
-        return ResponseEntity.ok(topicUpdated);
-    }
-
-    @PutMapping("/{id}/close")
-    @Transactional
-    @Secured({"ADMIN", "USER"})
-    public ResponseEntity closeTopic(@PathVariable Long id) {
-        topicManager.close(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/{id}")
-    @Transactional
-    @Secured({"ADMIN", "USER"})
-    public ResponseEntity deleteTopic(@PathVariable Long id) {
-        topicManager.delete(id);
-        return ResponseEntity.noContent().build();
     }
 }

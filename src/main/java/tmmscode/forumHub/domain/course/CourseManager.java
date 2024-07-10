@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import tmmscode.forumHub.domain.BusinessRulesException;
+import tmmscode.forumHub.domain.course.validations.update.ValidateCourseUpdate;
 import tmmscode.forumHub.domain.topic.Topic;
 import tmmscode.forumHub.domain.topic.TopicRepository;
 
@@ -18,6 +19,9 @@ public class CourseManager {
     @Autowired
     private TopicRepository topicRepository;
 
+    @Autowired
+    private List<ValidateCourseUpdate> validateCourseUpdate;
+
     public List<Course> getAllActiveCourses () {
         return courseRepository.getAllActiveCourses();
     }
@@ -29,34 +33,25 @@ public class CourseManager {
     }
 
     public CourseDetailsDTO getCourseDetails(Long id) {
-        if(courseRepository.existsById(id)) {
-            var courseSelected = courseRepository.getReferenceById(id);
-            return new CourseDetailsDTO(courseSelected);
-        } else {
-            throw new BusinessRulesException("O curso escolhido para detalhamento não existe!");
-        }
+        var courseSelected = courseRepository.getReferenceById(id);
+        return new CourseDetailsDTO(courseSelected);
     }
 
     public CourseDetailsDTO updateCourse(UpdateCourseDTO data, Long id) {
-        if(courseRepository.existsById(id) && courseRepository.isActive(id)) {
-            var courseSelected = courseRepository.getReferenceById(id);
-            courseSelected.update(data);
-            return new CourseDetailsDTO(courseSelected);
-        } else {
-            throw new BusinessRulesException("O curso escolhido para atualização não existe!");
-        }
+        validateCourseUpdate.forEach(v -> v.validate(id));
+
+        var courseSelected = courseRepository.getReferenceById(id);
+        courseSelected.update(data);
+        return new CourseDetailsDTO(courseSelected);
     }
 
     public void deleteCourse(Long id) {
-        if(courseRepository.existsById(id) && courseRepository.isActive(id)) {
-            var courseSelected = courseRepository.getReferenceById(id);
-            courseSelected.delete();
-        } else {
-            throw new BusinessRulesException("O curso escolhido para exclusão não existe!");
-        }
+        validateCourseUpdate.forEach(v -> v.validate(id));
+
+        var courseSelected = courseRepository.getReferenceById(id);
+        courseSelected.delete();
     }
 
-    // pegar tópicos de um curso (topic repository
     public Page<Topic> getExistingTopicsFromCourse(Pageable pageable, Long courseId) {
         var activeTopicsFromCourse = topicRepository.findExistingTopicsFromCourse(pageable, courseId);
         return activeTopicsFromCourse;
