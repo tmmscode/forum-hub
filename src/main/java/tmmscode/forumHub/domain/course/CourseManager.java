@@ -8,6 +8,7 @@ import tmmscode.forumHub.domain.BusinessRulesException;
 import tmmscode.forumHub.domain.course.validations.update.ValidateCourseUpdate;
 import tmmscode.forumHub.domain.topic.Topic;
 import tmmscode.forumHub.domain.topic.TopicRepository;
+import tmmscode.forumHub.domain.topic.validations.creation.ValidateExistingCourse;
 
 import java.util.List;
 
@@ -46,7 +47,9 @@ public class CourseManager {
     }
 
     public void deleteCourse(Long id) {
-        validateCourseUpdate.forEach(v -> v.validate(id));
+        if(!courseRepository.existsById(id)){
+            throw new BusinessRulesException("This course does not exist");
+        }
 
         var courseSelected = courseRepository.getReferenceById(id);
         courseSelected.delete();

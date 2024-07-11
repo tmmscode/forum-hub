@@ -41,6 +41,14 @@ public class CourseController {
         return ResponseEntity.ok(courseUpdated);
     }
 
+    @DeleteMapping("/{id}")
+    @Transactional
+    @Secured("ADMIN")
+    public ResponseEntity deleteCourse(@PathVariable Long id) {
+        courseManager.deleteCourse(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping
     @Secured({"ADMIN", "USER"})
     public ResponseEntity getAllActiveCourses() {
