@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  forumhub:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: host_name_here
+      DB_NAME: database_name_here
+      DB_USERNAME: username_here
+      DB_PASSWORD: password_here
+      JWT_SECRET: jwt_secret_here
