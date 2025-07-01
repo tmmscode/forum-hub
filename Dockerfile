@@ -5,7 +5,7 @@ FROM eclipse-temurin:21.0.2_13-jdk
 WORKDIR /app
 
 # Copia o jar gerado para dentro do container
-COPY target/forumhub.jar app.jar
+COPY target/forumHub-0.0.1-SNAPSHOT.jar app.jar
 
 # Expõe a porta que a aplicação usa (ajuste se necessário)
 EXPOSE 8080
